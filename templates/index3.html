@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Example 01.01 - Basic skeleton</title>
+    <script src="/static/js/three_min.js"></script>
+	<script src="/static/js/OBJLoader.js"></script>
+	<script src="/static/js/MTLLoader.js"></script>
+	<script src="/static/js/OrbitControls.js"></script>
+    <style>
+        body {
+            /* set margin to 0 and overflow to hidden, to
+             use the complete page */
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+<!-- Div which will hold the Output -->
+<div id="WebGL-output">
+</div>
+<script>
+  function init() {
+        // create a scene, that will hold all our elements such as objects, cameras and lights.
+        var scene = new THREE.Scene();
+        // create a camera, which defines where we're looking at.
+        var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        // create a render and set the size
+        var renderer = new THREE.WebGLRenderer();
+        //renderer.setClearColorHex();
+        renderer.setClearColor(new THREE.Color(0x000000));
+        renderer.setSize(window.innerWidth, window.innerHeight);
+		document.body.appendChild( renderer.domElement );
+		
+		var controls = new THREE.OrbitControls(camera, renderer.domElement);
+		controls.enableDamping = true;
+		controls.dampingFactor = 0.25;
+		controls.enableZoom = true;
+        // show axes in the screen
+        var axes = new THREE.AxisHelper(40);
+        scene.add(axes);
+
+		var pointLight = new THREE.PointLight(0xFFFFFF, 2, 600);
+		pointLight.position.set(0, 100, 0);
+		scene.add(pointLight);
+		var fillLight = new THREE.AmbientLight(new THREE.Color('hsl(240, 100%, 75%)'), 0.75);
+		//fillLight.position.set(0, 100, 0);
+		scene.add(fillLight)
+
+		var mtlLoader = new THREE.MTLLoader();
+		mtlLoader.load('/static/assets/3D/Room.mtl', function (materials) {
+															materials.preload();
+															var objLoader = new THREE.OBJLoader();
+															objLoader.setMaterials(materials);
+															objLoader.load('/static/assets/3D/Room.obj', function (object) {
+															scene.add(object);
+															object.position.y = 0;
+															object.position.z = 0;
+															object.scale.set(.5, .5, .5);
+									});
+
+		});
+
+        // position and point the camera to the center of the scene
+	camera.position.z = 100;
+	var angle = 0;
+	var animate = function () {
+		//angle += 0.01;
+		var R = 100;
+		camera.lookAt(scene.position);
+		camera.position.x = Math.sin(angle)* R;
+        camera.position.y = 500;
+        //camera.position.z = Math.cos(angle) * R;
+		requestAnimationFrame( animate );
+		renderer.render(scene, camera);
+	};
+	animate();
+}
+window.onload = init();
+</script>
+</body>
+</html>
